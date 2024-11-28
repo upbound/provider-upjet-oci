@@ -9,8 +9,7 @@ import (
 	_ "embed"
 
 	ujconfig "github.com/crossplane/upjet/pkg/config"
-
-	"github.com/upbound/provider-oci/config/null"
+	"github.com/upbound/provider-oci/config/core"
 )
 
 const (
@@ -27,7 +26,7 @@ var providerMetadata string
 // GetProvider returns provider configuration
 func GetProvider() *ujconfig.Provider {
 	pc := ujconfig.NewProvider([]byte(providerSchema), resourcePrefix, modulePath, []byte(providerMetadata),
-		ujconfig.WithRootGroup("upbound.io"),
+		ujconfig.WithRootGroup("oci.upbound.io"),
 		ujconfig.WithIncludeList(ExternalNameConfigured()),
 		ujconfig.WithFeaturesPackage("internal/features"),
 		ujconfig.WithDefaultResourceOptions(
@@ -36,7 +35,7 @@ func GetProvider() *ujconfig.Provider {
 
 	for _, configure := range []func(provider *ujconfig.Provider){
 		// add custom config functions
-		null.Configure,
+		core.Configure,
 	} {
 		configure(pc)
 	}

@@ -9,7 +9,7 @@ import (
 
 	"github.com/crossplane/upjet/pkg/controller"
 
-	resource "github.com/upbound/provider-oci/internal/controller/null/resource"
+	vcn "github.com/upbound/provider-oci/internal/controller/core/vcn"
 	providerconfig "github.com/upbound/provider-oci/internal/controller/providerconfig"
 )
 
@@ -17,7 +17,7 @@ import (
 // the supplied manager.
 func Setup(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
-		resource.Setup,
+		vcn.Setup,
 		providerconfig.Setup,
 	} {
 		if err := setup(mgr, o); err != nil {
