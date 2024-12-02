@@ -10,6 +10,7 @@ import (
 
 	ujconfig "github.com/crossplane/upjet/pkg/config"
 	"github.com/upbound/provider-oci/config/core"
+	"github.com/upbound/provider-oci/hack"
 )
 
 const (
@@ -29,6 +30,7 @@ func GetProvider() *ujconfig.Provider {
 		ujconfig.WithRootGroup("oci.upbound.io"),
 		ujconfig.WithIncludeList(ExternalNameConfigured()),
 		ujconfig.WithFeaturesPackage("internal/features"),
+		ujconfig.WithMainTemplate(hack.MainTemplate),
 		ujconfig.WithDefaultResourceOptions(
 			ExternalNameConfigurations(),
 		))

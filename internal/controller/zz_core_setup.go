@@ -10,15 +10,13 @@ import (
 	"github.com/crossplane/upjet/pkg/controller"
 
 	vcn "github.com/upbound/provider-oci/internal/controller/core/vcn"
-	providerconfig "github.com/upbound/provider-oci/internal/controller/providerconfig"
 )
 
-// Setup creates all controllers with the supplied logger and adds them to
+// Setup_core creates all controllers with the supplied logger and adds them to
 // the supplied manager.
-func Setup(mgr ctrl.Manager, o controller.Options) error {
+func Setup_core(mgr ctrl.Manager, o controller.Options) error {
 	for _, setup := range []func(ctrl.Manager, controller.Options) error{
 		vcn.Setup,
-		providerconfig.Setup,
 	} {
 		if err := setup(mgr, o); err != nil {
 			return err
