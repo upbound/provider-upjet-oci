@@ -1,8 +1,8 @@
-apiVersion: core.oci.upbound.io/v1alpha1
+apiVersion: core.oci.upbound.io/v1beta1
 kind: Vcn
 metadata:
   annotations:
-    meta.upbound.io/example-id: core/v1alpha1/vcn
+    meta.upbound.io/example-id: core/v1beta1/vcn
   labels:
     testing.upbound.io/example-name: test_vcn
   name: test-vcn
@@ -11,4 +11,3 @@ spec:
     cidrBlock: 10.0.0.0/16
     compartmentId: ocid1.tenancy.oc1..aaaaaaaabjrmnfsya5kwe4ervduf6pvdcfdg2cbbmfo6lkcp5dvy7mtpzcfq
     displayName: example-vcn
-

@@ -6,8 +6,8 @@
 
 // +kubebuilder:object:generate=true
 // +groupName=core.oci.upbound.io
-// +versionName=v1alpha1
-package v1alpha1
+// +versionName=v1beta1
+package v1beta1
 
 import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -17,7 +17,7 @@ import (
 // Package type metadata.
 const (
 	CRDGroup   = "core.oci.upbound.io"
-	CRDVersion = "v1alpha1"
+	CRDVersion = "v1beta1"
 )
 
 var (

@@ -18,7 +18,6 @@ package main
 
 import (
 	"context"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"time"
@@ -61,7 +60,6 @@ func main() {
 		providerSource     = app.Flag("terraform-provider-source", "Terraform provider source.").Required().Envar("TERRAFORM_PROVIDER_SOURCE").String()
 		providerVersion    = app.Flag("terraform-provider-version", "Terraform provider version.").Required().Envar("TERRAFORM_PROVIDER_VERSION").String()
 		nativeProviderPath = app.Flag("terraform-native-provider-path", "Terraform native provider path for shared execution.").Default("").Envar("TERRAFORM_NATIVE_PROVIDER_PATH").String()
-		pluginProcessTTL   = app.Flag("provider-ttl", "TTL for the native plugin processes before they are replaced. Changing the default may increase memory consumption.").Default("100").Int()
 
 		namespace                  = app.Flag("namespace", "Namespace used to set as default scope in default secret store config.").Default("crossplane-system").Envar("POD_NAMESPACE").String()
 		essTLSCertsPath            = app.Flag("ess-tls-cert-dir", "Path of ESS TLS certificates.").Envar("ESS_TLS_CERTS_DIR").String()
@@ -107,12 +105,10 @@ func main() {
 	// we do not use the shared gRPC server and default to the regular
 	// Terraform CLI behaviour (of forking a plugin process per invocation).
 	// This removes some complexity for setting up development environments.
-	var scheduler terraform.ProviderScheduler = terraform.NewNoOpProviderScheduler()
-	if len(*nativeProviderPath) != 0 {
-		scheduler = terraform.NewSharedProviderScheduler(log, *pluginProcessTTL,
-			terraform.WithSharedProviderOptions(terraform.WithNativeProviderPath(*nativeProviderPath), terraform.WithNativeProviderName("registry.terraform.io/"+*providerSource)))
-	}
 
+	ctx := context.Background()
+	provider, err := config.GetProvider(ctx, false)
+	kingpin.FatalIfError(err, "Cannot initialize the provider configuration")
 	o := tjcontroller.Options{
 		Options: xpcontroller.Options{
 			Logger:                  log,
@@ -121,9 +117,10 @@ func main() {
 			MaxConcurrentReconciles: *maxReconcileRate,
 			Features:                &feature.Flags{},
 		},
-		Provider:   config.GetProvider(),
-		SetupFn:    clients.TerraformSetupBuilder(*terraformVersion, *providerSource, *providerVersion, scheduler),
-		PollJitter: pollJitter,
+		Provider:              provider,
+		SetupFn:               clients.TerraformSetupBuilder(*terraformVersion, *providerSource, *providerVersion, provider.TerraformProvider),
+		PollJitter:            pollJitter,
+		OperationTrackerStore: tjcontroller.NewOperationStore(log),
 	}
 
 	if *enableManagementPolicies {
@@ -147,7 +144,7 @@ func main() {
 		}
 
 		// Ensure default store config exists.
-		kingpin.FatalIfError(resource.Ignore(kerrors.IsAlreadyExists, mgr.GetClient().Create(context.Background(), &v1alpha1.StoreConfig{
+		kingpin.FatalIfError(resource.Ignore(kerrors.IsAlreadyExists, mgr.GetClient().Create(ctx, &v1alpha1.StoreConfig{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "default",
 			},
@@ -161,7 +158,6 @@ func main() {
 		})), "cannot create default store config")
 	}
 
-	rand.Seed(time.Now().UnixNano())
 	kingpin.FatalIfError(controller.Setup_monolith(mgr, o), "Cannot setup OCI controllers")
 	kingpin.FatalIfError(mgr.Start(ctrl.SetupSignalHandler()), "Cannot start controller manager")
 }

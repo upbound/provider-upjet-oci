@@ -12,8 +12,8 @@ import (
 	tjconfig "github.com/crossplane/upjet/pkg/config"
 	conversiontfjson "github.com/crossplane/upjet/pkg/types/conversion/tfjson"
 	tfjson "github.com/hashicorp/terraform-json"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	provider "github.com/oracle/terraform-provider-oci/oci"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	provider "github.com/oracle/terraform-provider-oci/xpprovider"
 	"github.com/pkg/errors"
 	"github.com/upbound/provider-oci/config/core"
 	"github.com/upbound/provider-oci/hack"
@@ -55,7 +55,7 @@ func GetProvider(_ context.Context, generationProvider bool) (*tjconfig.Provider
 	if generationProvider {
 		p, err = getProviderSchema(providerSchema)
 	} else {
-		p = provider.Provider()
+		p = provider.GetProvider()
 	}
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot get the Terraform provider schema with generation mode set to %t", generationProvider)
@@ -63,13 +63,13 @@ func GetProvider(_ context.Context, generationProvider bool) (*tjconfig.Provider
 
 	pc := tjconfig.NewProvider([]byte(providerSchema), resourcePrefix, modulePath, []byte(providerMetadata),
 		tjconfig.WithRootGroup("oci.upbound.io"),
-		tjconfig.WithIncludeList(resourceList(cliReconciledExternalNameConfigs)),
-		tjconfig.WithNoForkIncludeList(resourceList(noForkExternalNameConfigs)),
+		tjconfig.WithIncludeList(resourceList(CLIReconciledExternalNameConfigs)),
+		tjconfig.WithTerraformPluginSDKIncludeList(resourceList(NoForkExternalNameConfigs)),
 		tjconfig.WithFeaturesPackage("internal/features"),
 		tjconfig.WithMainTemplate(hack.MainTemplate),
 		tjconfig.WithTerraformProvider(p),
 		tjconfig.WithDefaultResourceOptions(
-			resourceConfigurator(),
+			ResourceConfigurator(),
 		))
 
 	for _, configure := range []func(provider *tjconfig.Provider){

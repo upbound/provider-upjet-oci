@@ -10,8 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alecthomas/kingpin"
 	"github.com/crossplane/upjet/pkg/pipeline"
+	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/upbound/provider-oci/config"
 )
