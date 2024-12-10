@@ -49,7 +49,7 @@ NPROCS ?= 1
 GO_TEST_PARALLEL := $(shell echo $$(( $(NPROCS) / 2 )))
 
 GO_REQUIRED_VERSION ?= 1.21
-GOLANGCILINT_VERSION ?= 1.54.0
+GOLANGCILINT_VERSION ?= 1.61.0
 # SUBPACKAGES ?= $(shell find cmd/provider -type d -maxdepth 1 -mindepth 1 | cut -d/ -f3)
 SUBPACKAGES ?= monolith
 GO_STATIC_PACKAGES ?= $(GO_PROJECT)/cmd/generator ${SUBPACKAGES:%=$(GO_PROJECT)/cmd/provider/%}
@@ -66,7 +66,7 @@ export SUBPACKAGES := $(SUBPACKAGES)
 KIND_VERSION = v0.21.0
 UP_VERSION = v0.28.0
 UP_CHANNEL = stable
-UPTEST_VERSION = v0.8.0
+UPTEST_VERSION = v0.13.0
 
 export UP_VERSION := $(UP_VERSION)
 export UP_CHANNEL := $(UP_CHANNEL)
