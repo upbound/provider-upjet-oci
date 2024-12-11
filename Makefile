@@ -208,7 +208,7 @@ CROSSPLANE_NAMESPACE = upbound-system
 # - UPTEST_DATASOURCE_PATH (optional), please see https://github.com/crossplane/uptest#injecting-dynamic-values-and-datasource
 uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
 	@$(INFO) running automated tests
-	@KUBECTL=$(KUBECTL) KUTTL=$(KUTTL) $(UPTEST) e2e "${UPTEST_EXAMPLE_LIST}" --data-source="${UPTEST_DATASOURCE_PATH}" --setup-script=cluster/test/setup.sh --default-conditions="Test" || $(FAIL)
+	@KUBECTL=$(KUBECTL) KUTTL=$(KUTTL) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) $(UPTEST) e2e "${UPTEST_EXAMPLE_LIST}" --data-source="${UPTEST_DATASOURCE_PATH}" --setup-script=cluster/test/setup.sh --default-conditions="Test" || $(FAIL)
 	@$(OK) running automated tests
 
 build-provider.%:
@@ -303,15 +303,6 @@ crossplane.help:
 
 help-special: crossplane.help
 
-# NOTE(hasheddan): the build submodule currently overrides XDG_CACHE_HOME in
-# order to force the Helm 3 to use the .work/helm directory. This causes Go on
-# Linux machines to use that directory as the build cache as well. We should
-# adjust this behavior in the build submodule because it is also causing Linux
-# users to duplicate their build cache, but for now we just make it easier to
-# identify its location in CI so that we cache between builds.
-go.cachedir:
-	@go env GOCACHE
-
 go.mod.cachedir:
 	@go env GOMODCACHE
 
@@ -322,7 +313,7 @@ go.lint.analysiskey-interval:
 go.lint.analysiskey:
 	@echo $$(make go.lint.analysiskey-interval)$$(sha1sum go.sum | cut -d' ' -f1)
 
-.PHONY: crossplane.help help-special go.mod.cachedir go.cachedir go.lint.analysiskey-interval go.lint.analysiskey
+.PHONY: crossplane.help help-special go.mod.cachedir go.lint.analysiskey-interval go.lint.analysiskey
 
 # TODO(negz): Update CI to use these targets.
 vendor: modules.download
