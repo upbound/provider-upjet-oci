@@ -64,7 +64,7 @@ func GetProvider(_ context.Context, generationProvider bool) (*tjconfig.Provider
 	pc := tjconfig.NewProvider([]byte(providerSchema), resourcePrefix, modulePath, []byte(providerMetadata),
 		tjconfig.WithRootGroup("oci.upbound.io"),
 		tjconfig.WithIncludeList(resourceList(CLIReconciledExternalNameConfigs)),
-		tjconfig.WithTerraformPluginSDKIncludeList(resourceList(NoForkExternalNameConfigs)),
+		tjconfig.WithTerraformPluginSDKIncludeList(resourceList(terraformPluginSDKExternalNameConfigs)),
 		tjconfig.WithFeaturesPackage("internal/features"),
 		tjconfig.WithMainTemplate(hack.MainTemplate),
 		tjconfig.WithTerraformProvider(p),

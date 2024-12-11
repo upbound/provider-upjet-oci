@@ -11,15 +11,11 @@ export TERRAFORM_VERSION ?= 1.5.5
 # licensed under BSL, which is not permitted.
 TERRAFORM_VERSION_VALID := $(shell [ "$(TERRAFORM_VERSION)" = "`printf "$(TERRAFORM_VERSION)\n1.6" | sort -V | head -n1`" ] && echo 1 || echo 0)
 
-export PROVIDER_NAME
+export TERRAFORM_PROVIDER_VERSION ?= 6.18.0
 export TERRAFORM_PROVIDER_SOURCE ?= oracle/oci
 export TERRAFORM_PROVIDER_REPO ?= https://github.com/oracle/terraform-provider-oci
-export TERRAFORM_PROVIDER_VERSION ?= 6.18.0
-export TERRAFORM_PROVIDER_DOWNLOAD_NAME ?= terraform-provider-oci
-export TERRAFORM_PROVIDER_DOWNLOAD_URL_PREFIX ?= https://releases.hashicorp.com/$(TERRAFORM_PROVIDER_DOWNLOAD_NAME)/$(TERRAFORM_PROVIDER_VERSION)
-export TERRAFORM_NATIVE_PROVIDER_BINARY ?= terraform-provider-oci_v6.18.0_x5
 export TERRAFORM_DOCS_PATH ?= website/docs/r
-
+export PROVIDER_NAME
 
 PLATFORMS ?= linux_amd64 linux_arm64
 
