@@ -61,12 +61,12 @@ func TerraformSetupBuilder(tfProvider *schema.Provider) terraform.SetupFn {
 
 		// Set credentials in Terraform provider configuration.
 		ps.Configuration = map[string]any{
+			"region":               pc.Spec.Region,
 			"tenancy_ocid":         creds["tenancy_ocid"],
 			"user_ocid":            creds["user_ocid"],
 			"private_key":          creds["private_key"],
 			"private_key_password": creds["private_key_password"],
 			"fingerprint":          creds["fingerprint"],
-			"region":               creds["region"],
 		}
 
 		return ps, errors.Wrapf(configureNoForkOCIClient(ctx, &ps, *tfProvider), "failed to configure no-fork OCI client")
