@@ -282,7 +282,7 @@ schema-version-diff:
 	./scripts/version_diff.py config/generated.lst "$(WORK_DIR)/schema.json.$${PREV_PROVIDER_VERSION}" config/schema.json
 	@$(OK) Checking for native state schema version changes
 
-.PHONY: cobertura submodules fallthrough run crds.clean
+.PHONY: cobertura submodules fallthrough run crds.clean schema-version-diff
 
 # ====================================================================================
 # Special Targets
