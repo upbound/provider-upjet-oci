@@ -18,6 +18,7 @@ kind: ProviderConfig
 metadata:
   name: default
 spec:
+  region: us-phoenix-1
   credentials:
     source: Secret
     secretRef:
