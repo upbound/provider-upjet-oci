@@ -13,11 +13,12 @@ ${KUBECTL} -n upbound-system wait --for=condition=Available deployment --all --t
 
 echo "Creating a default provider config..."
 cat <<EOF | ${KUBECTL} apply -f -
-apiVersion: template.upbound.io/v1beta1
+apiVersion: oci.upbound.io/v1beta1
 kind: ProviderConfig
 metadata:
   name: default
 spec:
+  region: us-phoenix-1
   credentials:
     source: Secret
     secretRef:

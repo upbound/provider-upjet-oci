@@ -6,33 +6,34 @@ package config
 
 import "github.com/crossplane/upjet/pkg/config"
 
-// ExternalNameConfigs contains all external name configurations for this
-// provider.
-var ExternalNameConfigs = map[string]config.ExternalName{
+// terraformPluginSDKExternalNameConfigs contains all external name configurations
+// belonging to Terraform resources to be reconciled under the no-fork
+// architecture for this provider.
+var terraformPluginSDKExternalNameConfigs = map[string]config.ExternalName{
 	// Import requires using a randomly generated ID from provider: nl-2e21sda
-	"null_resource": config.IdentifierFromProvider,
+	"oci_core_vcn": config.IdentifierFromProvider,
 }
 
-// ExternalNameConfigurations applies all external name configs listed in the
-// table ExternalNameConfigs and sets the version of those resources to v1beta1
-// assuming they will be tested.
-func ExternalNameConfigurations() config.ResourceOption {
+var CLIReconciledExternalNameConfigs = map[string]config.ExternalName{}
+
+// ResourceConfigurator applies all external name configs
+// listed in the table terraformPluginSDKExternalNameConfigs and
+// CLIReconciledExternalNameConfigs and sets the version
+// of those resources to v1beta1. For those resource in
+// terraformPluginSDKExternalNameConfigs, it also sets
+// config.Resource.UseNoForkClient to `true`.
+func ResourceConfigurator() config.ResourceOption {
 	return func(r *config.Resource) {
-		if e, ok := ExternalNameConfigs[r.Name]; ok {
-			r.ExternalName = e
+		// if configured both for the no-fork and CLI based architectures,
+		// no-fork configuration prevails
+		e, configured := terraformPluginSDKExternalNameConfigs[r.Name]
+		if !configured {
+			e, configured = CLIReconciledExternalNameConfigs[r.Name]
 		}
+		if !configured {
+			return
+		}
+		r.Version = "v1beta1"
+		r.ExternalName = e
 	}
-}
-
-// ExternalNameConfigured returns the list of all resources whose external name
-// is configured manually.
-func ExternalNameConfigured() []string {
-	l := make([]string, len(ExternalNameConfigs))
-	i := 0
-	for name := range ExternalNameConfigs {
-		// $ is added to match the exact string since the format is regex.
-		l[i] = name + "$"
-		i++
-	}
-	return l
 }
