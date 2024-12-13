@@ -59,10 +59,10 @@ export SUBPACKAGES := $(SUBPACKAGES)
 # ====================================================================================
 # Setup Kubernetes tools
 
-KIND_VERSION = v0.21.0
+KIND_VERSION = v0.25.0
 UP_VERSION = v0.28.0
 UP_CHANNEL = stable
-UPTEST_VERSION = v0.13.0
+UPTEST_VERSION = v1.1.2
 CRDDIFF_VERSION = v0.12.1
 
 export UP_VERSION := $(UP_VERSION)
@@ -194,21 +194,11 @@ CROSSPLANE_NAMESPACE = upbound-system
 
 # This target requires the following environment variables to be set:
 # - UPTEST_EXAMPLE_LIST, a comma-separated list of examples to test
-#   To ensure the proper functioning of the end-to-end test resource pre-deletion hook, it is crucial to arrange your resources appropriately. 
-#   You can check the basic implementation here: https://github.com/crossplane/uptest/blob/main/internal/templates/03-delete.yaml.tmpl.
-# - UPTEST_CLOUD_CREDENTIALS (optional), multiple sets of AWS IAM User credentials specified as key=value pairs.
-#   The support keys are currently `DEFAULT` and `PEER`. So, an example for the value of this env. variable is:
-#   DEFAULT='[default]
-#   aws_access_key_id = REDACTED
-#   aws_secret_access_key = REDACTED'
-#   PEER='[default]
-#   aws_access_key_id = REDACTED
-#   aws_secret_access_key = REDACTED'
-#   The associated `ProviderConfig`s will be named as `default` and `peer`.
-# - UPTEST_DATASOURCE_PATH (optional), please see https://github.com/crossplane/uptest#injecting-dynamic-values-and-datasource
-uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
+# - UPTEST_CLOUD_CREDENTIALS (optional), cloud credentials for the provider being tested
+# - UPTEST_DATASOURCE_PATH (optional), see https://github.com/crossplane/uptest#injecting-dynamic-values-and-datasource
+uptest: $(UPTEST) $(KUBECTL) $(CHAINSAW) $(CROSSPLANE_CLI)
 	@$(INFO) running automated tests
-	@KUBECTL=$(KUBECTL) KUTTL=$(KUTTL) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) $(UPTEST) e2e "${UPTEST_EXAMPLE_LIST}" --data-source="${UPTEST_DATASOURCE_PATH}" --setup-script=cluster/test/setup.sh --default-conditions="Test" || $(FAIL)
+	@KUBECTL=$(KUBECTL) CHAINSAW=$(CHAINSAW) CROSSPLANE_CLI=$(CROSSPLANE_CLI) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) $(UPTEST) e2e "${UPTEST_EXAMPLE_LIST}" --data-source="${UPTEST_DATASOURCE_PATH}" --setup-script=cluster/test/setup.sh --default-conditions="Test" || $(FAIL)
 	@$(OK) running automated tests
 
 build-provider.%:
@@ -227,6 +217,10 @@ local-deploy.%: controlplane.up
 
 local-deploy: build-provider.monolith local-deploy.monolith
 
+# This target requires the following environment variables to be set:
+# - UPTEST_CLOUD_CREDENTIALS, cloud credentials for the provider being tested
+# - UPTEST_EXAMPLE_LIST, a comma-separated list of examples to test
+# - UPTEST_DATASOURCE_PATH, see https://github.com/crossplane/uptest#injecting-dynamic-values-and-datasource
 family-e2e:
 	@$(INFO) Removing everything under $(XPKG_OUTPUT_DIR) and $(OUTPUT_DIR)/cache...
 	@rm -fR $(XPKG_OUTPUT_DIR)
@@ -235,8 +229,8 @@ family-e2e:
 	for m in $$(tr ',' ' ' <<< $${UPTEST_EXAMPLE_LIST}); do \
 		$(INFO) Processing the example manifest "$${m}"; \
 		for api in $$(sed -nE 's/^apiVersion: *(.+)/\1/p' "$${m}" | cut -d. -f1); do \
-		    if [[ $${api} == "v1" || $${api} == "azure" ]]; then \
-		        $(INFO) $${api} is not a valid provider. Skipping...; \
+		    if [[ $${api} == "v1" ]]; then \
+		        $(INFO) v1 is not a valid provider. Skipping...; \
 		        continue; \
 		    fi; \
 			if [[ $${INSTALL_APIS} =~ " $${api} " ]]; then \
