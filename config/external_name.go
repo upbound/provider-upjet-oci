@@ -10,8 +10,15 @@ import "github.com/crossplane/upjet/pkg/config"
 // belonging to Terraform resources to be reconciled under the no-fork
 // architecture for this provider.
 var terraformPluginSDKExternalNameConfigs = map[string]config.ExternalName{
-	// Import requires using a randomly generated ID from provider: nl-2e21sda
+	// core
+	//
+	// Vcns can be imported using the id
 	"oci_core_vcn": config.IdentifierFromProvider,
+
+	// objectstorage
+	//
+	// Buckets can be imported using the id, "n/{namespaceName}/b/{bucketName}"
+	"oci_objectstorage_bucket": config.TemplatedStringAsIdentifier("name", "n/{{ .parameters.namespace }}/b/{{ .external_name }}"),
 }
 
 var CLIReconciledExternalNameConfigs = map[string]config.ExternalName{}
