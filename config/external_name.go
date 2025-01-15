@@ -19,6 +19,11 @@ var terraformPluginSDKExternalNameConfigs = map[string]config.ExternalName{
 	//
 	// Buckets can be imported using the id, "n/{namespaceName}/b/{bucketName}"
 	"oci_objectstorage_bucket": config.TemplatedStringAsIdentifier("name", "n/{{ .parameters.namespace }}/b/{{ .external_name }}"),
+
+	// identity
+	//
+	// Vcns can be imported using the id
+	"oci_identity_tag_namespace": config.IdentifierFromProvider,
 }
 
 var CLIReconciledExternalNameConfigs = map[string]config.ExternalName{}
