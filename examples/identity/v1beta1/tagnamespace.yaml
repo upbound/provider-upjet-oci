@@ -1,0 +1,16 @@
+apiVersion: identity.oci.upbound.io/v1beta1
+kind: TagNamespace
+metadata:
+  annotations:
+    meta.upbound.io/example-id: identity/v1beta1/tagnamespace
+  labels:
+    testing.upbound.io/example-name: test_tag_namespace
+  name: test-tag-namespace
+spec:
+  forProvider:
+    compartmentId: ocid1.tenancy.oc1..aaaaaaaabjrmnfsya5kwe4ervduf6pvdcfdg2cbbmfo6lkcp5dvy7mtpzcfq
+    description: test
+    freeformTags:
+      Department: Finance
+    isRetired: false
+    name: test

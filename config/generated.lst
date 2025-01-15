@@ -1,1 +1,1 @@
-["oci_core_vcn","oci_objectstorage_bucket"]
+["oci_core_vcn","oci_identity_tag_namespace","oci_objectstorage_bucket"]
